@@ -6,3 +6,4 @@ python-dotenv==1.0.0
 pinecone
 pandas==2.1.4
 google-genai
+python-multipart
