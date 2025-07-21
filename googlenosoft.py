@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from google.generativeai import genai
+import google.generativeai as genai
 from genai import types
 import asyncio
 
