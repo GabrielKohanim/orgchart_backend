@@ -100,6 +100,10 @@ async def root():
 async def health_check():
     return {"status": "healthy", "service": "org-chart-builder"}
 
+@app.options("/test-cors")
+def test_cors():
+    return {"message": "cors okay"}
+
 @app.post("/api/suggest", response_model=SuggestResponse)
 async def suggest_changes(request: SuggestRequest):
     try:
