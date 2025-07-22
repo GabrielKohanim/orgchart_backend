@@ -27,6 +27,7 @@ origins = [
     "*" # for HTTPS local development
 ]
 
+'''
 # CORS middleware - MUST be added before any routes
 app.add_middleware(
     CORSMiddleware,
@@ -53,7 +54,7 @@ async def cors_handler(request, call_next):
     
     return response
 
-
+'''
 # Initialize myGemini instance
 gemini_ai = myGemini()
 
@@ -385,7 +386,3 @@ async def upload_logo(file: UploadFile = File(...)):
         f.write(contents)
     url = f"/uploads/{filename}"
     return {"id": unique_id, "url": url}
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, proxy_headers=True, forwarded_allow_ips="*")
