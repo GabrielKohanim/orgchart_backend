@@ -21,14 +21,18 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS middleware
+# 👇 Set this to your frontend’s deployed URL (exact match, including https://)
+origins = [
+    "https://org-chart-production.up.railway.app"
+]
 
+# 👇 CORS must be added before any routes
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://org-chart-production.up.railway.app"],
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],        # Allows POST, OPTIONS, GET, etc.
-    allow_headers=["*"],        # Allows content-type and other headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Initialize myGemini instance
