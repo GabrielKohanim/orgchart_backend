@@ -21,17 +21,22 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# 👇 Set this to your frontend’s deployed URL (exact match, including https://)
+#  Set this to your frontend’s deployed URL (exact match, including https://)
+# Updated origins - make sure these match your actual domains exactly
 origins = [
-    "https://org-chart-production.up.railway.app", "https://org-chart-x9r8.vercel.app/"
+    "https://org-chart-production.up.railway.app",
+    "https://org-chart-x9r8.vercel.app",
+    "http://localhost:3000",  # for local development
+    "http://localhost:5173",  # for Vite dev server
+    "https://localhost:3000", # for HTTPS local development
 ]
 
-# 👇 CORS must be added before any routes
+# CORS middleware - MUST be added before any routes
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
