@@ -23,7 +23,7 @@ app = FastAPI(
 
 # 👇 Set this to your frontend’s deployed URL (exact match, including https://)
 origins = [
-    "https://org-chart-production.up.railway.app". "https://org-chart-x9r8.vercel.app/"
+    "https://org-chart-production.up.railway.app", "https://org-chart-x9r8.vercel.app/"
 ]
 
 # 👇 CORS must be added before any routes
