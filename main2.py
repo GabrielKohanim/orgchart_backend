@@ -27,7 +27,7 @@ origins = [
     "*" # for HTTPS local development
 ]
 
-'''
+
 # CORS middleware - MUST be added before any routes
 app.add_middleware(
     CORSMiddleware,
@@ -54,7 +54,7 @@ async def cors_handler(request, call_next):
     
     return response
 
-'''
+
 # Initialize myGemini instance
 gemini_ai = myGemini()
 
