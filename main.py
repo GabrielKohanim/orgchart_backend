@@ -386,3 +386,8 @@ async def upload_logo(file: UploadFile = File(...)):
         f.write(contents)
     url = f"/uploads/{filename}"
     return {"id": unique_id, "url": url}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="::", port=int(os.environ["PORT"]), proxy_headers=True, forwarded_allow_ips="*")
+
