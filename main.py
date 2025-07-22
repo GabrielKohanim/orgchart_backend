@@ -24,11 +24,7 @@ app = FastAPI(
 #  Set this to your frontend’s deployed URL (exact match, including https://)
 # Updated origins - make sure these match your actual domains exactly
 origins = [
-    "https://org-chart-production.up.railway.app",
-    "https://org-chart-x9r8.vercel.app",
-    "http://localhost:3000",  # for local development
-    "http://localhost:5173",  # for Vite dev server
-    "https://localhost:3000", # for HTTPS local development
+    "*" # for HTTPS local development
 ]
 
 # CORS middleware - MUST be added before any routes
