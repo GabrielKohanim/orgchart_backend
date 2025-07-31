@@ -6,6 +6,7 @@ from typing import List, Dict, Any, Optional
 import json
 from pineconesoft import hmdceo
 from googlenosoft import myGemini
+import legalcrawler
 import base64
 import io
 import datetime
@@ -13,6 +14,7 @@ import imghdr
 from fastapi.staticfiles import StaticFiles
 import os
 import uuid
+from firecrawl import FirecrawlApp
 
 app = FastAPI()
 
@@ -367,3 +369,23 @@ async def upload_logo(file: UploadFile = File(...)):
     url = f"/uploads/{filename}"
     return {"id": unique_id, "url": url}
 
+
+#legalcrawler functions 
+
+class ScrapedData(BaseModel):
+    url: str
+    max_wait_time: Optional[int] = 300
+
+@app.post("/api/crawl-lawfirm")
+async def crawl_lawfirm_data(payload: ScrapedData):
+    """
+    Crawl a law firm website using the complete n8n workflow replication
+    """
+    try:
+        result = legalcrawler.crawl_lawfirm_website(
+            url=payload.url, 
+            max_wait_time=payload.max_wait_time
+        )
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error crawling law firm website: {str(e)}")
