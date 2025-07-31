@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 import os
 import uuid
 from firecrawl import FirecrawlApp
+import legalcrawler
 
 app = FastAPI()
 
