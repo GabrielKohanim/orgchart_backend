@@ -5,6 +5,7 @@ import os
 from firecrawl import FirecrawlApp
 from openai import OpenAI
 from dotenv import load_dotenv
+import datetime
 
 load_dotenv()
 
@@ -110,7 +111,7 @@ def get_scrape_results(batch_id, firecrawl_app):
         return None
 
 
-def crawl_lawfirm_website(url, max_wait_time=300):
+def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_key_openai=None):
     """
     Complete law firm website crawling function that replicates the n8n workflow
     
@@ -126,6 +127,9 @@ def crawl_lawfirm_website(url, max_wait_time=300):
         firecrawl_app = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
         openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         
+        #firecrawl_app = FirecrawlApp(api_key=api_key_firecrawl)
+        #openai_client = OpenAI(api_key=api_key_openai)
+
         print(f"Starting crawl for: {url}")
         
         # Step 1: Map the website to get all URLs
@@ -169,9 +173,16 @@ def crawl_lawfirm_website(url, max_wait_time=300):
                 results = get_scrape_status(batch_id, firecrawl_app)
                 print(results)
                 if results:
+                    cleaned_results = []
+                    for scraped in results.data:
+                        cleaned_results.append({
+                            "title": scraped.metadata.title,
+                            "url": scraped.metadata.url,
+                            "markdown": scraped.markdown
+                        })
                     return {
                         "all_links": all_links,
-                        "scraped": results.data
+                        "scraped": cleaned_results
                     }
                 else:
                     print("No results received")
@@ -197,7 +208,19 @@ if __name__ == "__main__":
     # Example law firm URL
     test_url = "https://www.quillarrowlaw.com/"
     result = crawl_lawfirm_website(test_url)
-    print(f"Results: {json.dumps(result, indent=2)}")
+
+    
+    # Write results to a timestamped text file
+    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"crawl_results_{timestamp}.txt"
+    
+    with open(filename, "w") as f:
+        f.write(f"Crawl Results for: {test_url}\n")
+        f.write(f"Timestamp: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write("=" * 50 + "\n")
+        f.write(json.dumps(result, indent=2))
+    
+    print(f"Results written to: {filename}")
     
 
 
