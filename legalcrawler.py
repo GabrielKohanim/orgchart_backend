@@ -99,19 +99,9 @@ def get_scrape_status(batch_id, firecrawl_app):
         return None
 
 
-def get_scrape_results(batch_id, firecrawl_app):
-    """
-    Retrieve the results of a completed batch scrape
-    """
-    try:
-        results_response = firecrawl_app.get_batch_results(batch_id)
-        return results_response
-    except Exception as e:
-        print(f"Error getting batch results: {e}")
-        return None
+# def deslopify_markdown(data):
 
-
-def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_key_openai=None):
+def crawl_lawfirm_website(url, max_wait_time=500):#, api_key_firecrawl=None, api_key_openai=None):
     """
     Complete law firm website crawling function that replicates the n8n workflow
     
@@ -208,8 +198,9 @@ if __name__ == "__main__":
     # Example law firm URL
     test_url = "https://www.quillarrowlaw.com/"
     result = crawl_lawfirm_website(test_url)
+    print(result)
 
-    
+    '''
     # Write results to a timestamped text file
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     filename = f"crawl_results_{timestamp}.txt"
@@ -221,7 +212,7 @@ if __name__ == "__main__":
         f.write(json.dumps(result, indent=2))
     
     print(f"Results written to: {filename}")
-    
+        '''
 
 
 
