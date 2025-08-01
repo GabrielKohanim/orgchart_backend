@@ -166,7 +166,7 @@ def crawl_lawfirm_website(url, max_wait_time=500):#, api_key_firecrawl=None, api
                     cleaned_results = []
                     for scraped in results.data:
                         cleaned_results.append({
-                            "title": scraped.metadata.title,
+                            #"title": scraped.metadata.ogtitle,
                             "url": scraped.metadata.url,
                             "markdown": scraped.markdown
                         })
