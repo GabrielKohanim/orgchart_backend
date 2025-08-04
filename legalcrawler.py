@@ -119,11 +119,11 @@ def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_ke
     """
     try:
         # Initialize clients
-        firecrawl_app = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
-        openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        #firecrawl_app = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
+        #openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         
-        #firecrawl_app = FirecrawlApp(api_key=api_key_firecrawl)
-        #openai_client = OpenAI(api_key=api_key_openai)
+        firecrawl_app = FirecrawlApp(api_key=api_key_firecrawl)
+        openai_client = OpenAI(api_key=api_key_openai)
 
         print(f"Starting crawl for: {url}")
         
