@@ -64,7 +64,8 @@ Output strictly valid JSON array named "results"—no comments or extra fields."
                 {"role": "user", "content": json.dumps(urls)}
             ],
             response_format={"type": "json_object"},
-            top_p=0.1
+            top_p=0.1,
+            timeout=60  # 60 second timeout
         )
         
         result = json.loads(response.choices[0].message.content)
@@ -146,9 +147,11 @@ def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_ke
         
         # Step 3: Submit batch scrape
         print("Step 3: Submitting batch scrape...")
-        batch_response = batch_scrape_urls(filtered_urls, firecrawl_app)
-
+        #batch_response = batch_scrape_urls(filtered_urls, firecrawl_app)
+        batch_response = firecrawl_app.async_batch_scrape_urls(filtered_urls, formats=['markdown'])
+        print(f"Batch response: {batch_response}")
         batch_id = batch_response.id if hasattr(batch_response, 'id') else None
+
         if not batch_id:
             print("No batch ID received")
             print(f"Batch response: {batch_response}")
@@ -161,19 +164,19 @@ def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_ke
         
 
         while time.time() - start_time < max_wait_time:
-            status_response = get_scrape_status(batch_id, firecrawl_app)
+            status_response = firecrawl_app.check_batch_scrape_status(batch_id)
             
             if status_response and status_response.status == "completed":
                 print("Scrape completed, retrieving results...")
-                results = get_scrape_status(batch_id, firecrawl_app)
+                results = firecrawl_app.check_batch_scrape_status(batch_id)
                 #print(f"Results: {results}")
                 if results and hasattr(results, 'data'):
                     cleaned_results = []
                     for scraped in results.data:
                         try:
                             cleaned_results.append({
-                                "title": getattr(scraped.metadata, 'og:title', 'unknown'),
-                                "url": getattr(scraped.metadata, 'ogUrl', 'unknown'),
+                                "title": scraped.metadata['title'],
+                                "url": scraped.metadata['url'],
                                 "markdown": getattr(scraped, 'markdown', '')
                             })
                         except Exception as e:
@@ -208,9 +211,9 @@ def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_ke
 # Example usage
 if __name__ == "__main__":
     # Example law firm URL
-    test_url = "https://www.quillarrowlaw.com/"
+    test_url = "https://f-f-law.com/"
     result = crawl_lawfirm_website(test_url)
-    print(result.data[0].metadata['ogUrl'])
+    #print(result)
 
     '''
     # Write results to a timestamped text file
