@@ -10,9 +10,9 @@ import datetime
 load_dotenv()
 
 
-def mapSite(url):
-    app = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
-    map_result = app.map_url(url)
+def mapSite(url, firecrawl_app):
+    #app = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
+    map_result = firecrawl_app.map_url(url)
     return map_result
 
 
@@ -101,30 +101,31 @@ def get_scrape_status(batch_id, firecrawl_app):
 
 # def deslopify_markdown(data):
 
-def crawl_lawfirm_website(url, max_wait_time=500):#, api_key_firecrawl=None, api_key_openai=None):
+def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_key_openai=None):
     """
     Complete law firm website crawling function that replicates the n8n workflow
     
     Args:
         url (str): The law firm website URL to crawl
         max_wait_time (int): Maximum time to wait for batch scrape completion (seconds)
-    
+        api_key_firecrawl (str): Firecrawl API key
+        api_key_openai (str): OpenAI API key
     Returns:
         dict: Contains 'all_links' (original mapped URLs) and 'scraped' (scraped data)
     """
     try:
         # Initialize clients
-        firecrawl_app = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
-        openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        #firecrawl_app = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
+        #openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         
-        #firecrawl_app = FirecrawlApp(api_key=api_key_firecrawl)
-        #openai_client = OpenAI(api_key=api_key_openai)
+        firecrawl_app = FirecrawlApp(api_key=api_key_firecrawl)
+        openai_client = OpenAI(api_key=api_key_openai)
 
         print(f"Starting crawl for: {url}")
         
         # Step 1: Map the website to get all URLs
         print("Step 1: Mapping website...")
-        map_result = firecrawl_app.map_url(url)
+        map_result = firecrawl_app.map_url(url,firecrawl_app)
         all_links = map_result.links
         print(f"Found {len(all_links)} URLs")
         

@@ -381,24 +381,24 @@ class ScrapedData(BaseModel):
 @app.post("/api/crawl-lawfirm")
 async def crawl_lawfirm_data(
     payload: ScrapedData,
-    #x_firecrawl_api_key: str = Header(None, alias="X-Firecrawl-API-Key"),
-    #x_openai_api_key: str = Header(None, alias="X-OpenAI-API-Key")
+    x_firecrawl_api_key: str = Header(None, alias="X-Firecrawl-API-Key"),
+    x_openai_api_key: str = Header(None, alias="X-OpenAI-API-Key")
 ):
     """
     Crawl a law firm website using the complete n8n workflow replication
     """
     try:
         # Validate that API keys are provided
-       # if not x_firecrawl_api_key:
-       #     raise HTTPException(status_code=400, detail="X-Firecrawl-API-Key header is required")
-       # if not x_openai_api_key:
-       #     raise HTTPException(status_code=400, detail="X-OpenAI-API-Key header is required")
+        if not x_firecrawl_api_key:
+            raise HTTPException(status_code=400, detail="X-Firecrawl-API-Key header is required")
+        if not x_openai_api_key:
+            raise HTTPException(status_code=400, detail="X-OpenAI-API-Key header is required")
         
         result = legalcrawler.crawl_lawfirm_website(
             url=payload.url, 
-            max_wait_time=payload.max_wait_time
-            #api_key_firecrawl=x_firecrawl_api_key,
-            #api_key_openai=x_openai_api_key
+            max_wait_time=payload.max_wait_time,
+            api_key_firecrawl=x_firecrawl_api_key,
+            api_key_openai=x_openai_api_key
         )
         return result 
     except Exception as e:
