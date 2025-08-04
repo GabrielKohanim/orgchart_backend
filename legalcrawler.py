@@ -79,11 +79,15 @@ def batch_scrape_urls(urls, firecrawl_app):
     Submit URLs for batch scraping
     """
     try:
+        print(f"Submitting {len(urls)} URLs for batch scraping")
         # Submit batch scrape request
         batch_response = firecrawl_app.async_batch_scrape_urls(urls, formats=['markdown'])
+        print(f"Batch response: {batch_response}")
         return batch_response
     except Exception as e:
         print(f"Error submitting batch scrape: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 
@@ -115,18 +119,18 @@ def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_ke
     """
     try:
         # Initialize clients
-        #firecrawl_app = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
-        #openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        firecrawl_app = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
+        openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
         
-        firecrawl_app = FirecrawlApp(api_key=api_key_firecrawl)
-        openai_client = OpenAI(api_key=api_key_openai)
+        #firecrawl_app = FirecrawlApp(api_key=api_key_firecrawl)
+        #openai_client = OpenAI(api_key=api_key_openai)
 
         print(f"Starting crawl for: {url}")
         
         # Step 1: Map the website to get all URLs
         print("Step 1: Mapping website...")
-        map_result = firecrawl_app.map_url(url,firecrawl_app)
-        all_links = map_result.links
+        map_result = firecrawl_app.map_url(url)
+        all_links = map_result.links if hasattr(map_result, 'links') else []
         print(f"Found {len(all_links)} URLs")
         
         if not all_links:
@@ -143,41 +147,46 @@ def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_ke
         # Step 3: Submit batch scrape
         print("Step 3: Submitting batch scrape...")
         batch_response = batch_scrape_urls(filtered_urls, firecrawl_app)
-        
-        if not batch_response:
-            return {"all_links": all_links, "scraped": []}
-        
-        batch_id = batch_response.id
+
+        batch_id = batch_response.id if hasattr(batch_response, 'id') else None
         if not batch_id:
             print("No batch ID received")
-            return {"all_links": all_links, "scraped": []}
+            print(f"Batch response: {batch_response}")
+            return {"all_links": all_links, "scraped": [], "error": "No batch ID"}
         
+
         # Step 4: Wait for completion and get results
         print("Step 4: Waiting for scrape completion...")
         start_time = time.time()
         
+
         while time.time() - start_time < max_wait_time:
             status_response = get_scrape_status(batch_id, firecrawl_app)
             
             if status_response and status_response.status == "completed":
                 print("Scrape completed, retrieving results...")
                 results = get_scrape_status(batch_id, firecrawl_app)
-                print(results)
-                if results:
+                #print(f"Results: {results}")
+                if results and hasattr(results, 'data'):
                     cleaned_results = []
                     for scraped in results.data:
-                        cleaned_results.append({
-                            #"title": scraped.metadata.ogtitle,
-                            "url": scraped.metadata.url,
-                            "markdown": scraped.markdown
-                        })
+                        try:
+                            cleaned_results.append({
+                                "title": getattr(scraped.metadata, 'og:title', 'unknown'),
+                                "url": getattr(scraped.metadata, 'ogUrl', 'unknown'),
+                                "markdown": getattr(scraped, 'markdown', '')
+                            })
+                        except Exception as e:
+                            print(f"Error processing scraped item: {e}")
+                            continue
                     return {
                         "all_links": all_links,
                         "scraped": cleaned_results
                     }
                 else:
-                    print("No results received")
-                    return {"all_links": all_links, "scraped": []}
+                    print("No results received or invalid results structure")
+                    print(f"Results type: {type(results)}")
+                    return {"all_links": all_links, "scraped": [], "error": "No valid results"}
             
             elif status_response and status_response.status == "failed":
                 print("Batch scrape failed")
@@ -191,7 +200,9 @@ def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_ke
         
     except Exception as e:
         print(f"Error in crawl_lawfirm_website: {e}")
-        return {"all_links": [], "scraped": []}
+        import traceback
+        traceback.print_exc()
+        return {"all_links": [], "scraped": [], "error": str(e)}
 
 
 # Example usage
@@ -199,7 +210,7 @@ if __name__ == "__main__":
     # Example law firm URL
     test_url = "https://www.quillarrowlaw.com/"
     result = crawl_lawfirm_website(test_url)
-    print(result)
+    print(result.data[0].metadata['ogUrl'])
 
     '''
     # Write results to a timestamped text file
