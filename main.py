@@ -400,7 +400,6 @@ async def crawl_lawfirm_data(
             api_key_firecrawl=x_firecrawl_api_key,
             api_key_openai=x_openai_api_key
         )
-        return x_firecrawl_api_key
         return result 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error crawling law firm website: {str(e)}")
