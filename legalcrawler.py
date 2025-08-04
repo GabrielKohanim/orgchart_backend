@@ -120,12 +120,11 @@ def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_ke
     """
     try:
         # Initialize clients
-        if api_key_firecrawl and api_key_openai:
-            firecrawl_app = FirecrawlApp(api_key=api_key_firecrawl)
-            openai_client = OpenAI(api_key=api_key_openai)
-        else:
-            firecrawl_app = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
-            openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        #firecrawl_app = FirecrawlApp(api_key=os.getenv("FIRECRAWL_API_KEY"))
+        #openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        
+        firecrawl_app = FirecrawlApp(api_key=api_key_firecrawl)
+        openai_client = OpenAI(api_key=api_key_openai)
 
         print(f"Starting crawl for: {url}")
         
@@ -165,64 +164,23 @@ def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_ke
         
 
         while time.time() - start_time < max_wait_time:
-            status_response = get_scrape_status(batch_id, firecrawl_app)
-            print(f"Status response: {status_response}")
+            status_response = firecrawl_app.check_batch_scrape_status(batch_id)
             
             if status_response and status_response.status == "completed":
                 print("Scrape completed, retrieving results...")
-                results = get_scrape_status(batch_id, firecrawl_app)
-                print(f"Results type: {type(results)}")
-                print(f"Results attributes: {dir(results)}")
+                results = firecrawl_app.check_batch_scrape_status(batch_id)
+                #print(f"Results: {results}")
                 if results and hasattr(results, 'data'):
                     cleaned_results = []
-                    print(f"Processing {len(results.data)} scraped items")
-                    for i, scraped in enumerate(results.data):
+                    for scraped in results.data:
                         try:
-                            # Debug: print the structure of scraped item
-                            print(f"Item {i}: {type(scraped)}")
-                            print(f"Item {i} attributes: {dir(scraped)}")
-                            if hasattr(scraped, 'metadata'):
-                                print(f"Item {i} metadata: {dir(scraped.metadata)}")
-                            
-                            # Try different ways to access the data
-                            title = 'unknown'
-                            url = 'unknown'
-                            markdown = ''
-                            
-                            # Try to get title
-                            if hasattr(scraped, 'metadata'):
-                                if hasattr(scraped.metadata, 'ogtitle'):
-                                    title = scraped.metadata.ogtitle
-                                elif hasattr(scraped.metadata, 'og:title'):
-                                    title = scraped.metadata['og:title']
-                                elif hasattr(scraped.metadata, 'title'):
-                                    title = scraped.metadata.title
-                            
-                            # Try to get URL
-                            if hasattr(scraped, 'metadata'):
-                                if hasattr(scraped.metadata, 'url'):
-                                    url = scraped.metadata.url
-                                elif hasattr(scraped.metadata, 'ogUrl'):
-                                    url = scraped.metadata.ogUrl
-                                elif hasattr(scraped.metadata, 'sourceURL'):
-                                    url = scraped.metadata.sourceURL
-                            
-                            # Try to get markdown
-                            if hasattr(scraped, 'markdown'):
-                                markdown = scraped.markdown
-                            elif hasattr(scraped, 'content'):
-                                markdown = scraped.content
-                            
-                            
                             cleaned_results.append({
-                                "title": title,
-                                "url": url,
-                                "markdown": markdown
+                                "title": scraped.metadata['title'],
+                                "url": scraped.metadata['url'],
+                                "markdown": getattr(scraped, 'markdown', '')
                             })
                         except Exception as e:
-                            print(f"Error processing scraped item {i}: {e}")
-                            import traceback
-                            traceback.print_exc()
+                            print(f"Error processing scraped item: {e}")
                             continue
                     return {
                         "all_links": all_links,
@@ -253,8 +211,9 @@ def crawl_lawfirm_website(url, max_wait_time=500, api_key_firecrawl=None, api_ke
 # Example usage
 if __name__ == "__main__":
     # Example law firm URL
-    test_url = "https://www.quillarrowlaw.com/"
-    result = crawl_lawfirm_website(test_url)
+    test_url = "https://f-f-law.com/"
+    result = crawl_lawfirm_website(test_url, 500, os.getenv("FIRECRAWL_API_KEY"), os.getenv("OPENAI_API_KEY"))
+    #print(result)
 
     '''
     # Write results to a timestamped text file
