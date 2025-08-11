@@ -36,6 +36,10 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 
+# Private notes and test features 
+prompt.txt
+sslchecker.py
+
 # Runtime data
 pids
 *.pid

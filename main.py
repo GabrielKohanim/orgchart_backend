@@ -403,3 +403,17 @@ async def crawl_lawfirm_data(
         return result 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error crawling law firm website: {str(e)}")
+
+@app.post("/api/scrape-page")
+async def scrape_page(
+    url: str,
+    frmt: str,
+    x_firecrawl_api_key: str = Header(None, alias="X-Firecrawl-API-Key")
+):
+    try:
+        if not x_firecrawl_api_key:
+            raise HTTPException(status_code=400, detail="X-Firecrawl-API-Key header is required")
+        result = get_scrape_w_format(url, frmt, x_firecrawl_api_key)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error scraping page: {str(e)}")

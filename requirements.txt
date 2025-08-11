@@ -10,3 +10,4 @@ python-multipart
 requests
 firecrawl-py
 openai
+sslyze>=6.0.0

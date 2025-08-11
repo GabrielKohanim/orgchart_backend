@@ -23,7 +23,7 @@ def filter_lawfirm_urls(urls, openai_client):
     system_prompt = """You are the "firecrawl_filter" AI for WebsiteIntelligenceAgent.
 ● INPUT: JSON array of raw URLs (strings), all from the same law‑firm domain.
 ● OUTPUT: JSON array named "results" of URLs filtered to maximize firm‑relevant coverage—while still dropping purely utility pages.
-TEMPORARY LIMIT: Maximum 50 URLs in output (this clause will be removed soon)
+TEMPORARY LIMIT: Maximum 80 URLs in output (this clause will be removed soon)
 
 Always Include
 
@@ -49,11 +49,13 @@ Strict Exclusions
 Exclude any URL if the path includes or ends with:
 • /login, /signup, /search, /events, /calendar, /privacy, /terms, /sitemap, /archive
 • File extensions: .js, .css, .jpg, .png, .svg, .ico, .woff, .map
+Exeptions 
+Return any URLs that might be contain information about the law firms marketing and social media. 
 Final Rules
 
 Preserve original order; remove exact duplicates.
 If a URL matches both inclusion and exclusion, include it.
-If filtered results exceed 50 URLs, prioritize in this order: homepage, core pages (about/team/services), then news/blog content, stopping at 50 total.
+If filtered results exceed 80 URLs, prioritize in this order: homepage, core pages (about/team/services), then news/blog content, stopping at 50 total.
 Output strictly valid JSON array named "results"—no comments or extra fields."""
 
     try:
@@ -73,6 +75,20 @@ Output strictly valid JSON array named "results"—no comments or extra fields."
     except Exception as e:
         print(f"Error filtering URLs with OpenAI: {e}")
         return urls[:50]  # Fallback to first 50 URLs
+
+
+def get_scrape_w_format(url, frmt, api_key_firecrawl):
+    try:
+        firecrawl_app = FirecrawlApp(api_key=api_key_firecrawl)
+        if frmt == "screenshot":
+            response = firecrawl_app.async_batch_scrape_urls([url], formats=['screenshot@fullPage'])
+        else:
+            response = firecrawl_app.scrape_url(url, formats=[frmt])
+        return response
+    except Exception as e:
+        print(f"Error getting screenshot: {e}")
+        return None
+
 
 
 def batch_scrape_urls(urls, firecrawl_app):
