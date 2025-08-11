@@ -55,7 +55,7 @@ Final Rules
 
 Preserve original order; remove exact duplicates.
 If a URL matches both inclusion and exclusion, include it.
-If filtered results exceed 40 URLs, prioritize in this order: homepage, core pages (about/team/services), then news/blog content, stopping at 50 total.
+If filtered results exceed 40 URLs, prioritize in this order: homepage, core pages (about/team/services), then news/blog content, stopping at 40 total.
 Output strictly valid JSON array named "results"—no comments or extra fields."""
 
     try:
